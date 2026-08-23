@@ -1,8 +1,8 @@
 # Teaching Parenting Parent Survey
-# 02_analysis_public.R
+# teaching_parenting_analysis.R
 #
 # Code created May 2026
-# Last updated August 21, 2026
+# Last updated August 2026
 
 library(dplyr)
 library(tidyr)
@@ -104,8 +104,8 @@ dat <- dat %>%
     parent_ethnicity_other_ind =
       make_indicator(parent_ethnicity, "Other"),
     
-    # Collapse race/ethnicity into three mutually exclusive categories for
-    # regression analyses because of small cell sizes.
+    # Collapse race/ethnicity into three categories to improve stability of
+    # regression estimates given small cell sizes.
     #
     # 1. Caucasian, non-Hispanic/Latino
     # 2. African American
@@ -117,8 +117,7 @@ dat <- dat %>%
     ethnicity_3cat = case_when(
       is.na(parent_ethnicity) ~ NA_character_,
       
-      # Anyone who selected African American is classified as African American,
-      # regardless of any additional race/ethnicity selections
+      # African American takes precedence when multiple identities were selected.
       parent_ethnicity_african_american == 1L ~
         "African American",
       
@@ -126,8 +125,7 @@ dat <- dat %>%
       parent_ethnicity_caucasian == 1L &
         parent_ethnicity_hispanic_latino == 0L ~
         "Caucasian, non-Hispanic/Latino",
-      
-      # All remaining respondents
+
       TRUE ~ "Other"
     ),
     
@@ -494,10 +492,9 @@ source_by_ethnicity
 
 
 # ==============================================================================
-# DESCRIPTIVE CONTEXT: OVERALL ATTITUDES TOWARD PARENTING / CHILD DEVELOPMENT
+# OVERALL ATTITUDES TOWARD PARENTING AND CHILD DEVELOPMENT
 # ==============================================================================
 
-# Full six-category distribution supports Figure 3.
 
 # Labels for parenting attitude items
 attitude_labels <- c(
@@ -594,7 +591,7 @@ childdev_support
 
 # ------------------------------------------------------------------------------
 # Closed-ended reasons for SUPPORTING parenting education
-# Denominator = parents who supported teaching parenting (n = 171)
+# Denominator = respondents with a non-missing support-reason response
 # ------------------------------------------------------------------------------
 
 parenting_support_reason_summary <- tibble(
@@ -632,7 +629,7 @@ parenting_support_reason_summary
 
 # ------------------------------------------------------------------------------
 # Closed-ended reasons for SUPPORTING child-development education
-# Denominator = parents who supported teaching child development (n = 182)
+# Denominator = parents who supported teaching child development 
 # ------------------------------------------------------------------------------
 
 childdev_support_reason_summary <- tibble(
@@ -667,7 +664,7 @@ childdev_support_reason_summary
 
 # ------------------------------------------------------------------------------
 # Closed-ended reasons for OPPOSING parenting education
-# Denominator = parents who did not support teaching parenting (n = 30)
+# Denominator = parents who did not support teaching parenting
 # ------------------------------------------------------------------------------
 
 parenting_anti_reason_summary <- tibble(
@@ -705,7 +702,7 @@ parenting_anti_reason_summary
 
 # ------------------------------------------------------------------------------
 # Closed-ended reasons for OPPOSING child-development education
-# Denominator = parents who did not support teaching child development (n = 19)
+# Denominator = parents who did not support teaching child development
 # ------------------------------------------------------------------------------
 
 childdev_anti_reason_summary <- tibble(
@@ -1041,7 +1038,8 @@ topic_labels <- c(
   parenting_attitude19 = "Parenting resources"
 )
 
-# Full six-category response distribution (supports Figure 4)
+# Full six-category topic-response distribution
+
 topic_attitude_table <- dat %>%
   select(parenting_attitude10:parenting_attitude19) %>%
   pivot_longer(
